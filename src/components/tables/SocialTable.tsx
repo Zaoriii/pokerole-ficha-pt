@@ -1,0 +1,148 @@
+import { useCharacterStore, getRankPoints, getAgePoints } from '../../store/useCharacterStore';
+import { SocialStat } from '../../types/enums';
+import { NumberSpinner } from '../ui/NumberSpinner';
+import { parseCombatTags, getAbilityText, calculateStatTotal } from '../../utils/combatUtils';
+import { CollapsingSection } from '../ui/CollapsingSection';
+import './SocialTable.css';
+
+const SOCIAL_COLORS = {
+    [SocialStat.TOU]: '#F9E79F',
+    [SocialStat.COO]: '#F5CBA7',
+    [SocialStat.BEA]: '#AED6F1',
+    [SocialStat.CUT]: '#F5B7B1',
+    [SocialStat.CLE]: '#A9DFBF'
+};
+
+const SOCIAL_LABELS = {
+    [SocialStat.TOU]: 'RESISTENTE',
+    [SocialStat.COO]: 'LEGAL',
+    [SocialStat.BEA]: 'BONITO',
+    [SocialStat.CUT]: 'FOFO',
+    [SocialStat.CLE]: 'ESPERTO'
+};
+
+export function SocialTable() {
+    const socials = useCharacterStore((state) => state.socials);
+    const setSocialStatistic = useCharacterStore((state) => state.setSocialStat);
+    const extras = useCharacterStore((state) => state.extras);
+    const setExtra = useCharacterStore((state) => state.setExtra);
+    const inventory = useCharacterStore((state) => state.inventory);
+    const extraCategories = useCharacterStore((state) => state.extraCategories);
+    const customAbilities = useCharacterStore((state) => state.roomCustomAbilities);
+    const ability = useCharacterStore((state) => state.identity.ability);
+
+    const currentRank = useCharacterStore((state) => state.identity.rank);
+    const currentAge = useCharacterStore((state) => state.identity.age);
+
+    const rankPoints = getRankPoints(currentRank).social;
+    const agePoints = getAgePoints(currentAge).social;
+
+    const abilityText = getAbilityText(ability, customAbilities);
+    const inventoryModifiers = parseCombatTags(inventory, extraCategories, undefined, abilityText);
+    const fullState = useCharacterStore.getState();
+
+    const spentRank = Object.values(SocialStat).reduce(
+        (accumulator, statistic) => accumulator + socials[statistic].rank,
+        0
+    );
+    const remainingPoints = rankPoints + agePoints + extras.social - spentRank;
+
+    const handleResetBuffs = () => {
+        Object.values(SocialStat).forEach((statistic) => {
+            setSocialStatistic(statistic, 'buff', 0);
+            setSocialStatistic(statistic, 'debuff', 0);
+        });
+    };
+
+    const headerElements = (
+        <button
+            type="button"
+            onClick={handleResetBuffs}
+            className="action-button action-button--dark social-table__reset-btn"
+            title="Redefinir todos os Bônus e Penalidades Sociais para 0"
+        >
+            🔄 Redefinir Bônus
+        </button>
+    );
+
+    return (
+        <CollapsingSection title="ATRIBUTOS SOCIAIS" headerElements={headerElements}>
+            <div className="table-responsive-wrapper">
+                <table className="data-table">
+                    <thead>
+                        <tr className="social-table__header-row">
+                            <th className="social-table__header-cell">SOCIAL</th>
+                            <th>Base</th>
+                            <th>Rank</th>
+                            <th>Bônus</th>
+                            <th>Penalidade</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Object.values(SocialStat).map((statistic) => {
+                            const data = socials[statistic];
+                            const total = calculateStatTotal(statistic, fullState, inventoryModifiers);
+                            return (
+                                <tr key={statistic} className="data-table__row--dynamic">
+                                    <td
+                                        className="social-table__statistic-label"
+                                        style={{ background: SOCIAL_COLORS[statistic] }}
+                                    >
+                                        {SOCIAL_LABELS[statistic]}
+                                    </td>
+                                    <td className="data-table__cell--middle">
+                                        <NumberSpinner
+                                            value={data.base}
+                                            onChange={(value: number) => setSocialStatistic(statistic, 'base', value)}
+                                            min={1}
+                                        />
+                                    </td>
+                                    <td className="data-table__cell--middle">
+                                        <NumberSpinner
+                                            value={data.rank}
+                                            onChange={(value: number) => setSocialStatistic(statistic, 'rank', value)}
+                                            min={0}
+                                        />
+                                    </td>
+                                    <td className="data-table__cell--middle">
+                                        <NumberSpinner
+                                            value={data.buff}
+                                            onChange={(value: number) => setSocialStatistic(statistic, 'buff', value)}
+                                            min={0}
+                                        />
+                                    </td>
+                                    <td className="data-table__cell--middle">
+                                        <NumberSpinner
+                                            value={data.debuff}
+                                            onChange={(value: number) => setSocialStatistic(statistic, 'debuff', value)}
+                                            min={0}
+                                        />
+                                    </td>
+                                    <td className="data-table__cell--middle social-table__total-cell">{total}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            <div className="social-table__footer">
+                <span>
+                    Restante:{' '}
+                    <strong className={remainingPoints < 0 ? 'social-table__negative-remaining' : ''}>
+                        {remainingPoints}
+                    </strong>
+                </span>
+                <span className="social-table__max-label">(Máx. 5 por atributo)</span>
+                <span className="social-table__extra-container">
+                    Extra:{' '}
+                    <NumberSpinner
+                        value={extras.social}
+                        onChange={(value: number) => setExtra('social', value)}
+                        min={0}
+                    />
+                </span>
+            </div>
+        </CollapsingSection>
+    );
+}

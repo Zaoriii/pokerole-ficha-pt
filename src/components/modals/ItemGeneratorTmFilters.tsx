@@ -1,0 +1,237 @@
+import './ItemGeneratorModal.css';
+
+interface ItemGeneratorTmFiltersProps {
+    tmPowers: string[];
+    setTmPowers: (powers: string[] | ((prev: string[]) => string[])) => void;
+    tmTypes: string[];
+    setTmTypes: (types: string[] | ((prev: string[]) => string[])) => void;
+    allTypes: string[];
+    allTypeColors: Record<string, string>;
+    includeHomebrewTms: boolean;
+    setIncludeHomebrewTms: (val: boolean) => void;
+}
+
+export function ItemGeneratorTmFilters({
+    tmPowers,
+    setTmPowers,
+    tmTypes,
+    setTmTypes,
+    allTypes,
+    allTypeColors,
+    includeHomebrewTms,
+    setIncludeHomebrewTms
+}: ItemGeneratorTmFiltersProps) {
+    const hasBasic = ['1', '2', '3'].every((p) => tmPowers.includes(p));
+    const hasHigh = ['4', '5', '6', '7', '8', '10'].every((p) => tmPowers.includes(p));
+    const hasVariable = tmPowers.includes('variable');
+
+    const toggleBasicPowers = () => {
+        if (hasBasic) {
+            setTmPowers((prev) => prev.filter((p) => !['1', '2', '3'].includes(p)));
+        } else {
+            setTmPowers((prev) => Array.from(new Set([...prev, '1', '2', '3'])));
+        }
+    };
+
+    const toggleHighPowers = () => {
+        if (hasHigh) {
+            setTmPowers((prev) => prev.filter((p) => !['4', '5', '6', '7', '8', '10'].includes(p)));
+        } else {
+            setTmPowers((prev) => Array.from(new Set([...prev, '4', '5', '6', '7', '8', '10'])));
+        }
+    };
+
+    const toggleSupport = () => {
+        if (tmPowers.includes('support')) {
+            setTmPowers((prev) => prev.filter((p) => p !== 'support'));
+        } else {
+            setTmPowers((prev) => [...prev, 'support']);
+        }
+    };
+
+    const toggleVariable = () => {
+        if (hasVariable) {
+            setTmPowers((prev) => prev.filter((p) => p !== 'variable'));
+        } else {
+            setTmPowers((prev) => [...prev, 'variable']);
+        }
+    };
+
+    const handlePowerDropdown = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = event.target.value;
+        if (val && !tmPowers.includes(val)) {
+            setTmPowers((prev) => [...prev, val]);
+        }
+    };
+
+    const removePowerPill = (powerToRemove: string) => {
+        setTmPowers((prev) => prev.filter((p) => p !== powerToRemove));
+    };
+
+    const toggleAnyType = () => {
+        if (tmTypes.includes('Any')) {
+            setTmTypes([]);
+        } else {
+            setTmTypes(['Any']);
+        }
+    };
+
+    const handleTypeDropdown = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = event.target.value;
+        if (val) {
+            setTmTypes((prev) => {
+                const next = prev.filter((t) => t !== 'Any');
+                if (!next.includes(val)) return [...next, val];
+                return next;
+            });
+        }
+    };
+
+    const removeTypePill = (typeToRemove: string) => {
+        setTmTypes((prev) => {
+            const next = prev.filter((t) => t !== typeToRemove);
+            if (next.length === 0) return ['Any'];
+            return next;
+        });
+    };
+
+    return (
+        <div className="item-generator-modal__filter-group">
+            <div className="item-generator-modal__filter-group-title">💿 Máquinas Técnicas</div>
+
+            <span className="item-generator-modal__type-label">Poderes das MTs:</span>
+
+            <div className="item-generator-modal__checkbox-list item-generator-modal__checkbox-list--flat">
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={tmPowers.includes('support')}
+                        onChange={toggleSupport}
+                    />
+                    Golpes de Suporte (Poder 0)
+                </label>
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={hasBasic}
+                        onChange={toggleBasicPowers}
+                    />
+                    Golpes Básicos (Poder 1-3)
+                </label>
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={hasHigh}
+                        onChange={toggleHighPowers}
+                    />
+                    Golpes de Alto Poder (Poder 4+)
+                </label>
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={hasVariable}
+                        onChange={toggleVariable}
+                    />
+                    Golpes de Poder Variável (Varia)
+                </label>
+            </div>
+
+            <div className="item-generator-modal__dropdown-row">
+                <select className="item-generator-modal__type-select" value="" onChange={handlePowerDropdown}>
+                    <option value="" disabled>
+                        + Adicionar Poder Específico...
+                    </option>
+                    {!tmPowers.includes('support') && <option value="support">Suporte</option>}
+                    {!tmPowers.includes('variable') && <option value="variable">Variável</option>}
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 10].map(
+                        (power) =>
+                            !tmPowers.includes(String(power)) && (
+                                <option key={`opt_pow_${power}`} value={String(power)}>
+                                    Poder {power}
+                                </option>
+                            )
+                    )}
+                </select>
+            </div>
+
+            <div className="item-generator-modal__pill-container">
+                {tmPowers.map((power) => (
+                    <span
+                        key={power}
+                        className="action-button action-button--dark item-generator-modal__pill"
+                        onClick={() => removePowerPill(power)}
+                    >
+                        {power === 'support' ? 'Suporte' : power === 'variable' ? 'Variável' : `Poder ${power}`}{' '}
+                        <span className="item-generator-modal__pill-close">✖</span>
+                    </span>
+                ))}
+            </div>
+
+            <span className="item-generator-modal__type-label">Tipos das MTs:</span>
+
+            <div className="item-generator-modal__checkbox-list item-generator-modal__checkbox-list--flat">
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={tmTypes.includes('Any')}
+                        onChange={toggleAnyType}
+                    />
+                    Qualquer Tipo (Selecionar Tudo)
+                </label>
+            </div>
+
+            <div className="item-generator-modal__dropdown-row">
+                <select className="item-generator-modal__type-select" value="" onChange={handleTypeDropdown}>
+                    <option value="" disabled>
+                        + Adicionar Tipo Específico...
+                    </option>
+                    {allTypes.map(
+                        (type) =>
+                            !tmTypes.includes(type) && (
+                                <option key={`opt_type_${type}`} value={type}>
+                                    {type}
+                                </option>
+                            )
+                    )}
+                </select>
+            </div>
+
+            <div className="item-generator-modal__pill-container">
+                {tmTypes
+                    .filter((t) => t !== 'Any')
+                    .map((type) => (
+                        <span
+                            key={type}
+                            className="item-generator-modal__pill item-generator-modal__pill--type"
+                            style={{
+                                background: allTypeColors[type] || 'var(--dark)'
+                            }}
+                            onClick={() => removeTypePill(type)}
+                        >
+                            {type} <span className="item-generator-modal__pill-close">✖</span>
+                        </span>
+                    ))}
+            </div>
+
+            <div
+                className="item-generator-modal__checkbox-list item-generator-modal__checkbox-list--flat"
+                style={{ marginTop: '15px' }}
+            >
+                <label className="item-generator-modal__checkbox-label">
+                    <input
+                        type="checkbox"
+                        className="item-generator-modal__checkbox"
+                        checked={includeHomebrewTms}
+                        onChange={(e) => setIncludeHomebrewTms(e.target.checked)}
+                    />
+                    Incluir Golpes Personalizados/Homebrew
+                </label>
+            </div>
+        </div>
+    );
+}

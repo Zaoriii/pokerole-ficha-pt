@@ -1,0 +1,415 @@
+.generator-modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.generator-modal__content {
+    background: var(--panel-bg);
+    padding: 15px;
+    border-radius: 8px;
+    width: 780px;
+    max-height: 95vh;
+    overflow-y: auto;
+    border: 2px solid var(--primary);
+    color: var(--text-main);
+}
+
+.generator-modal__title {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    text-align: center;
+}
+
+.generator-modal__desc {
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--text-muted);
+}
+
+.generator-modal__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.generator-modal__row {
+    display: flex;
+    gap: 10px;
+}
+
+.generator-modal__col {
+    flex: 1;
+}
+
+.generator-modal__label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.generator-modal__select {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-main);
+}
+
+/* 3-Column Box Layout */
+.generator-modal__side-by-side {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: stretch;
+}
+
+.generator-modal__composition {
+    background: var(--panel-alt);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+
+.generator-modal__composition--disabled {
+    justify-content: center;
+    align-items: center;
+    opacity: 0.5;
+}
+
+.generator-modal__comp-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.generator-modal__comp-title--disabled {
+    color: var(--text-muted);
+}
+
+.generator-modal__comp-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+.generator-modal__comp-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: auto;
+    margin-bottom: 10px;
+}
+
+.generator-modal__comp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.generator-modal__comp-item--row {
+    flex-direction: row;
+}
+
+.generator-modal__comp-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.generator-modal__comp-input {
+    width: 45px;
+    text-align: center;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-weight: bold;
+}
+
+.generator-modal__min-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex: 1;
+    padding: 4px 0;
+}
+
+.generator-modal__min-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.generator-modal__min-grid--spaced {
+    margin-top: 10px;
+}
+
+.generator-modal__min-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.generator-modal__min-label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+/* 2-Column Checkbox Grid */
+.generator-modal__checkbox-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.generator-modal__checkbox-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.generator-modal__checkbox-label {
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.generator-modal__checkbox-label--bold {
+    font-weight: bold;
+}
+
+.generator-modal__checkbox-label--center {
+    font-size: 0.7rem;
+    justify-content: center;
+}
+
+.generator-modal__checkbox-label--indented {
+    padding-left: 24px;
+}
+
+.generator-modal__checkbox {
+    transform: scale(1.1);
+    cursor: pointer;
+    margin: 0;
+}
+
+.generator-modal__warning {
+    margin: 15px 0;
+    padding: 8px;
+    background: #ffcdd2;
+    color: #c62828;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.generator-modal__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.generator-modal__btn {
+    flex: 1;
+    padding: 8px;
+}
+
+/* Tooltip Modal Styles */
+.generator-modal__tooltip-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.generator-modal__tooltip-content {
+    background: var(--panel-bg);
+    padding: 15px;
+    border-radius: 8px;
+    width: 280px;
+    border: 2px solid var(--primary);
+    color: var(--text-main);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.generator-modal__tooltip-title {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    text-align: center;
+}
+
+.generator-modal__tooltip-desc {
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.generator-modal__tooltip-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.generator-modal__tooltip-btn {
+    width: 100%;
+    padding: 6px;
+}
+
+/* NEW: Extracted Inline Styles */
+.generator-modal__spillover-section {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.generator-modal__spillover-inputs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 4px;
+}
+
+.generator-modal__spillover-text {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.generator-modal__spillover-colon {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.generator-modal__coverage-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.generator-modal__coverage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.generator-modal__coverage-select-wrapper {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.generator-modal__coverage-select-label {
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.generator-modal__coverage-select {
+    font-size: 0.75rem;
+    padding: 4px;
+}
+
+.generator-modal__coverage-fixed-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.generator-modal__coverage-fixed-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.generator-modal__evo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 24px;
+    margin-top: 2px;
+}
+
+.generator-modal__evo-box {
+    background: var(--row-odd);
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+.generator-modal__evo-title {
+    font-size: 0.75rem;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.generator-modal__evo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.generator-modal__evo-row--spaced {
+    margin-bottom: 4px;
+}
+
+.generator-modal__evo-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Mobile Overrides */
+@media (max-width: 768px) {
+    .generator-modal__side-by-side {
+        grid-template-columns: 1fr;
+    }
+    .generator-modal__checkbox-group {
+        grid-template-columns: 1fr;
+    }
+}

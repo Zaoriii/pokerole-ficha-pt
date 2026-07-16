@@ -1,0 +1,14 @@
+{
+    "name": "Ficha Pokerole 3.0 (PT-BR)",
+    "version": "2.7.5",
+    "manifest_version": 1,
+    "description": "Uma ficha de personagem para Pokerole 3.0 totalmente automatizada, para campanhas padrão e PMD.",
+    "author": "lordcongra",
+    "action": {
+        "title": "Ficha Pokerole 3.0 (PT-BR)",
+        "icon": "https://Zaoriii.github.io/pokerole-ficha-pt/pokeball.svg",
+        "popover": "https://Zaoriii.github.io/pokerole-ficha-pt/",
+        "width": 850,
+        "height": 700
+    }
+}

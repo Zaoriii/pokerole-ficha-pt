@@ -1,0 +1,220 @@
+import { useState, useEffect } from 'react';
+import { useCharacterStore } from '../../store/useCharacterStore';
+import type { CustomPokemon } from '../../store/storeTypes';
+import { HomebrewPokemonStats } from './HomebrewPokemonStats';
+import { HomebrewPokemonAbilities } from './HomebrewPokemonAbilities';
+import { HomebrewPokemonLearnset } from './HomebrewPokemonLearnset';
+import './HomebrewPokemonCard.css';
+
+interface HomebrewPokemonCardProps {
+    pokemon: CustomPokemon;
+    allTypes: string[];
+    allTypeColors: Record<string, string>;
+    role: string;
+    canEdit: boolean;
+    onRemove: () => void;
+    onDuplicate: () => void;
+}
+
+export function HomebrewPokemonCard({
+    pokemon,
+    allTypes,
+    allTypeColors,
+    role,
+    canEdit,
+    onRemove,
+    onDuplicate
+}: HomebrewPokemonCardProps) {
+    const updateCustomPokemon = useCharacterStore((state) => state.updateCustomPokemon);
+
+    const [localName, setLocalName] = useState(pokemon.Name);
+    const [localGameMasterOnly, setLocalGameMasterOnly] = useState(pokemon.gmOnly || false);
+    const [isCollapsed, setIsCollapsed] = useState(pokemon.Name !== 'New Pokemon');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    useEffect(() => {
+        setLocalName(pokemon.Name);
+        setLocalGameMasterOnly(pokemon.gmOnly || false);
+    }, [pokemon]);
+
+    return (
+        <div className="homebrew-pokemon-card">
+            <div className="homebrew-pokemon-card__header">
+                <button
+                    type="button"
+                    className={`collapse-btn ${isCollapsed ? 'is-collapsed' : ''}`}
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                >
+                    ▼
+                </button>
+                <input
+                    type="text"
+                    value={localName}
+                    onChange={(event) => canEdit && setLocalName(event.target.value)}
+                    onBlur={() =>
+                        canEdit && localName !== pokemon.Name && updateCustomPokemon(pokemon.id, 'Name', localName)
+                    }
+                    placeholder="Pokémon Species Name"
+                    disabled={!canEdit}
+                    className="homebrew-pokemon-card__name-input"
+                />
+                {role === 'GM' && (
+                    <label className="homebrew-pokemon-card__gm-label">
+                        <input
+                            type="checkbox"
+                            checked={localGameMasterOnly}
+                            onChange={(event) => {
+                                setLocalGameMasterOnly(event.target.checked);
+                                updateCustomPokemon(pokemon.id, 'gmOnly', event.target.checked);
+                            }}
+                        />
+                        GM Only
+                    </label>
+                )}
+                {canEdit && (
+                    <>
+                        <button
+                            onClick={onDuplicate}
+                            className="action-button action-button--dark homebrew-pokemon-card__delete-btn"
+                            title="Duplicate Pokémon"
+                        >
+                            📋 Copy
+                        </button>
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="action-button action-button--red homebrew-pokemon-card__delete-btn"
+                        >
+                            Delete
+                        </button>
+                    </>
+                )}
+            </div>
+
+            {!isCollapsed && (
+                <>
+                    <div className="homebrew-pokemon-card__types-row">
+                        <select
+                            value={pokemon.Type1}
+                            onChange={(event) =>
+                                canEdit && updateCustomPokemon(pokemon.id, 'Type1', event.target.value)
+                            }
+                            disabled={!canEdit}
+                            className="homebrew-pokemon-card__type-select"
+                            style={{
+                                background: allTypeColors[pokemon.Type1] || 'var(--input-bg)',
+                                color: pokemon.Type1 && pokemon.Type1 !== 'None' ? 'white' : 'var(--text-main)',
+                                textShadow: pokemon.Type1 ? '1px 1px 1px rgba(0,0,0,0.8)' : 'none'
+                            }}
+                        >
+                            {allTypes.map((typeOption) => (
+                                <option key={`t1-${typeOption}`} value={typeOption}>
+                                    {typeOption || '-- Type 1 --'}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            value={pokemon.Type2}
+                            onChange={(event) =>
+                                canEdit && updateCustomPokemon(pokemon.id, 'Type2', event.target.value)
+                            }
+                            disabled={!canEdit}
+                            className="homebrew-pokemon-card__type-select"
+                            style={{
+                                background: allTypeColors[pokemon.Type2] || 'var(--input-bg)',
+                                color: pokemon.Type2 && pokemon.Type2 !== 'None' ? 'white' : 'var(--text-main)',
+                                textShadow: pokemon.Type2 ? '1px 1px 1px rgba(0,0,0,0.8)' : 'none'
+                            }}
+                        >
+                            {allTypes.map((typeOption) => (
+                                <option key={`t2-${typeOption}`} value={typeOption}>
+                                    {typeOption || '-- Type 2 --'}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <HomebrewPokemonStats pokemon={pokemon} canEdit={canEdit} />
+                    <HomebrewPokemonAbilities pokemon={pokemon} canEdit={canEdit} />
+                    <HomebrewPokemonLearnset pokemon={pokemon} canEdit={canEdit} />
+
+                    <div className="homebrew-pokemon-card__pokedex-section">
+                        <span className="homebrew-pokemon-card__section-header">Pokédex Info</span>
+                        <div className="homebrew-pokemon-card__types-row">
+                            <input
+                                type="text"
+                                value={pokemon.DexID || ''}
+                                onChange={(e) => canEdit && updateCustomPokemon(pokemon.id, 'DexID', e.target.value)}
+                                placeholder="Dex # (e.g. 025)"
+                                disabled={!canEdit}
+                                className="homebrew-pokemon-card__name-input"
+                            />
+                            <input
+                                type="text"
+                                value={pokemon.DexCategory || ''}
+                                onChange={(e) =>
+                                    canEdit && updateCustomPokemon(pokemon.id, 'DexCategory', e.target.value)
+                                }
+                                placeholder="Category (e.g. Mouse Pokémon)"
+                                disabled={!canEdit}
+                                className="homebrew-pokemon-card__name-input"
+                            />
+                        </div>
+                        <div className="homebrew-pokemon-card__types-row" style={{ marginTop: '8px' }}>
+                            <input
+                                type="text"
+                                value={pokemon.Height || ''}
+                                onChange={(e) => canEdit && updateCustomPokemon(pokemon.id, 'Height', e.target.value)}
+                                placeholder="Height (e.g. 0.4m / 1.04ft)"
+                                disabled={!canEdit}
+                                className="homebrew-pokemon-card__name-input"
+                            />
+                            <input
+                                type="text"
+                                value={pokemon.Weight || ''}
+                                onChange={(e) => canEdit && updateCustomPokemon(pokemon.id, 'Weight', e.target.value)}
+                                placeholder="Weight (e.g. 6.0kg / 13.2lbs)"
+                                disabled={!canEdit}
+                                className="homebrew-pokemon-card__name-input"
+                            />
+                        </div>
+                        <textarea
+                            value={pokemon.DexDescription || ''}
+                            onChange={(e) =>
+                                canEdit && updateCustomPokemon(pokemon.id, 'DexDescription', e.target.value)
+                            }
+                            placeholder="Pokédex Description"
+                            disabled={!canEdit}
+                            className="homebrew-card__textarea homebrew-card__textarea--small"
+                            style={{ marginTop: '8px' }}
+                        />
+                    </div>
+                </>
+            )}
+
+            {showDeleteConfirm && (
+                <div className="homebrew-confirm__overlay">
+                    <div className="homebrew-confirm__content">
+                        <h3 className="homebrew-confirm__title">⚠️ Confirm Deletion</h3>
+                        <p className="homebrew-confirm__text">Are you sure you want to delete this Custom Pokémon?</p>
+                        <div className="homebrew-confirm__actions">
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="action-button action-button--dark homebrew-confirm__btn"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onRemove}
+                                className="action-button action-button--red homebrew-confirm__btn"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

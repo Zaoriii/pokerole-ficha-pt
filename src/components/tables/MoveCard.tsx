@@ -1,0 +1,339 @@
+import { useState, memo } from 'react';
+import { useCharacterStore } from '../../store/useCharacterStore';
+import type { MoveData, SkillData, ExtraCategory } from '../../store/storeTypes';
+import { CombatStat, SocialStat, Skill } from '../../types/enums';
+import { NumberSpinner } from '../ui/NumberSpinner';
+import { fetchMoveData } from '../../utils/api';
+import {
+    rollAccuracy,
+    calculateBaseDamage,
+    parseCombatTags,
+    getAbilityText,
+    calculateStatTotal,
+    calculateSkillTotal
+} from '../../utils/combatUtils';
+import { MoveEditModal } from '../modals/MoveEditModal';
+import { POKEMON_TYPES, TYPE_COLORS } from '../../data/constants';
+import './MoveCard.css';
+
+interface MoveCardProps {
+    move: MoveData;
+    skills: Record<Skill, SkillData>;
+    extraCategories: ExtraCategory[];
+    onTarget: (moveData: MoveData) => void;
+    onDelete: (id: string) => void;
+}
+
+export const MoveCard = memo(function MoveCard({ move, skills, extraCategories, onTarget, onDelete }: MoveCardProps) {
+    const updateMove = useCharacterStore((state) => state.updateMove);
+    const moveUpMove = useCharacterStore((state) => state.moveUpMove);
+    const moveDownMove = useCharacterStore((state) => state.moveDownMove);
+    const applyMoveData = useCharacterStore((state) => state.applyMoveData);
+
+    const roomCustomTypes = useCharacterStore((state) => state.roomCustomTypes);
+    const combinedTypes = [...POKEMON_TYPES, ...roomCustomTypes.map((type) => type.name)];
+    const combinedColors = {
+        ...TYPE_COLORS,
+        ...Object.fromEntries(roomCustomTypes.map((type) => [type.name, type.color]))
+    };
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [bankModalOpen, setBankModalOpen] = useState(false);
+
+    const handleNameBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+        const value = event.target.value.trim();
+        if (value) {
+            const data = await fetchMoveData(value);
+            if (data) applyMoveData(move.id, data as Record<string, unknown>);
+        }
+    };
+
+    // Keep selectors to ensure the component re-renders when these change!
+    const inventory = useCharacterStore((state) => state.inventory);
+    useCharacterStore((state) => state.will);
+    useCharacterStore((state) => state.stats);
+    useCharacterStore((state) => state.socials);
+    const customAbilities = useCharacterStore((state) => state.roomCustomAbilities);
+    const ability = useCharacterStore((state) => state.identity.ability);
+
+    // 🔥 Reactive First Hit Selectors
+    useCharacterStore((state) => state.trackers.firstHitDmg);
+    const firstHitAccActive = useCharacterStore((state) => state.trackers.firstHitAcc);
+
+    const abilityText = getAbilityText(ability, customAbilities);
+    const itemBuffs = parseCombatTags(inventory, extraCategories, move, abilityText);
+    const fullState = useCharacterStore.getState();
+
+    const attributeTotal = calculateStatTotal(move.acc1, fullState, itemBuffs);
+    const skillTotal = calculateSkillTotal(move.acc2, fullState, itemBuffs);
+
+    const trackers = useCharacterStore((state) => state.trackers);
+    const bankedAccDice = trackers.bankedAccDice || {};
+    const bankedDiceForThisMove = bankedAccDice[move.id] || 0;
+    const totalBanked = Object.values(bankedAccDice).reduce((a, b) => a + b, 0);
+
+    let customFirstHitAccTag = 0;
+    if (itemBuffs.firstHitAcc !== 0 && firstHitAccActive) {
+        customFirstHitAccTag = itemBuffs.firstHitAcc;
+    }
+
+    const accuracyTotal = attributeTotal + skillTotal + trackers.globalAcc + itemBuffs.acc + customFirstHitAccTag;
+
+    const baseDamage = move.category === 'Status' ? 0 : calculateBaseDamage(move, fullState);
+    const damageTotal = move.category === 'Status' ? '-' : baseDamage + bankedDiceForThisMove;
+
+    const handleAccuracyClick = () => {
+        if (totalBanked > 0) {
+            setBankModalOpen(true);
+        } else {
+            rollAccuracy(move, useCharacterStore.getState());
+        }
+    };
+
+    const confirmWipeBank = () => {
+        useCharacterStore.getState().updateTracker('bankedAccDice', {});
+        rollAccuracy(move, useCharacterStore.getState());
+        setBankModalOpen(false);
+    };
+
+    const confirmKeepBank = () => {
+        rollAccuracy(move, useCharacterStore.getState());
+        setBankModalOpen(false);
+    };
+
+    return (
+        <>
+            <div className={`move-card ${!move.active ? '' : 'move-card--inactive'}`}>
+                <div className="move-card__header">
+                    <input
+                        type="checkbox"
+                        checked={move.active}
+                        onChange={(event) => updateMove(move.id, 'active', event.target.checked)}
+                        className="move-card__checkbox"
+                        title="Marcar como usado nesta rodada"
+                    />
+                    <span className="move-card__accuracy-text">{accuracyTotal}</span>
+                    <button
+                        type="button"
+                        onClick={handleAccuracyClick}
+                        className="action-button action-button--dark move-card__roll-btn"
+                        title="Rolar Precisão"
+                    >
+                        🎯
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setEditModalOpen(true)}
+                        className="action-button action-button--transparent-white move-card__edit-btn"
+                        title="Editar Golpe e Tags"
+                    >
+                        🏷️
+                    </button>
+                    <select
+                        value={move.marker || ''}
+                        onChange={(event) => updateMove(move.id, 'marker', event.target.value)}
+                        className="move-card__marker-select"
+                    >
+                        <option value="">-</option>
+                        <option value="★">★</option>
+                        <option value="◼">◼</option>
+                        <option value="▲">▲</option>
+                        <option value="◆">◆</option>
+                        <option value="⬟">⬟</option>
+                    </select>
+                    <input
+                        type="text"
+                        list="move-list"
+                        value={move.name}
+                        onChange={(event) => updateMove(move.id, 'name', event.target.value)}
+                        onBlur={handleNameBlur}
+                        placeholder="Nome do Golpe"
+                        className="move-card__name-input"
+                    />
+                </div>
+
+                <div className="move-card__row">
+                    <select
+                        value={move.type}
+                        onChange={(event) => updateMove(move.id, 'type', event.target.value)}
+                        className="move-card__select"
+                        style={{
+                            background: combinedColors[move.type] || 'var(--panel-alt)',
+                            color: move.type ? 'white' : 'var(--text-main)',
+                            textShadow: move.type ? '1px 1px 1px rgba(0,0,0,0.8)' : 'none'
+                        }}
+                    >
+                        <option value="">Tipo</option>
+                        {combinedTypes.map((typeOption) => (
+                            <option key={typeOption} value={typeOption}>
+                                {typeOption}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={move.category}
+                        onChange={(event) =>
+                            updateMove(move.id, 'category', event.target.value as 'Physical' | 'Special' | 'Status')
+                        }
+                        className="move-card__select move-card__select--static"
+                    >
+                        <option value="Physical">Físico</option>
+                        <option value="Special">Especial</option>
+                        <option value="Status">Suporte</option>
+                    </select>
+                </div>
+
+                <div className="move-card__stat-row">
+                    <div className="move-card__stat-group">
+                        <span className="move-card__stat-label">PRE:</span>
+                        <select
+                            value={move.acc1}
+                            onChange={(event) => updateMove(move.id, 'acc1', event.target.value)}
+                            className="move-card__stat-select"
+                        >
+                            {Object.values(CombatStat).map((statistic) => (
+                                <option key={statistic} value={statistic}>
+                                    {statistic.toUpperCase()}
+                                </option>
+                            ))}
+                            {Object.values(SocialStat).map((statistic) => (
+                                <option key={statistic} value={statistic}>
+                                    {statistic.toUpperCase()}
+                                </option>
+                            ))}
+                            <option value="will">WILL</option>
+                        </select>
+                        <span className="move-card__plus-sign">+</span>
+                        <select
+                            value={move.acc2}
+                            onChange={(event) => updateMove(move.id, 'acc2', event.target.value)}
+                            className="move-card__stat-select"
+                        >
+                            <option value="none">-- Nenhuma --</option>
+                            {Object.values(Skill).map((skillName) => (
+                                <option key={skillName} value={skillName}>
+                                    {skills[skillName]?.customName ||
+                                        skillName.charAt(0).toUpperCase() + skillName.slice(1)}
+                                </option>
+                            ))}
+                            {extraCategories.length > 0 &&
+                                extraCategories.map((category) => (
+                                    <optgroup key={category.id} label={category.name || 'EXTRA'}>
+                                        {category.skills.map((extraSkill) => (
+                                            <option key={extraSkill.id} value={extraSkill.id}>
+                                                {extraSkill.name || 'Sem nome'}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                ))}
+                        </select>
+                    </div>
+
+                    <div className="move-card__stat-group">
+                        <span className="move-card__stat-label">DANO:</span>
+                        <NumberSpinner
+                            value={move.power}
+                            onChange={(value: number) => updateMove(move.id, 'power', value)}
+                        />
+                        <span className="move-card__plus-sign--right">+</span>
+                        <select
+                            value={move.dmg1}
+                            onChange={(event) => updateMove(move.id, 'dmg1', event.target.value)}
+                            className="move-card__stat-select"
+                        >
+                            <option value="">-</option>
+                            {Object.values(CombatStat).map((statistic) => (
+                                <option key={statistic} value={statistic}>
+                                    {statistic.toUpperCase()}
+                                </option>
+                            ))}
+                            {Object.values(SocialStat).map((statistic) => (
+                                <option key={statistic} value={statistic}>
+                                    {statistic.toUpperCase()}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="move-card__footer">
+                    <div className="move-card__damage-container">
+                        <span className="move-card__damage-text">{damageTotal}</span>
+                        <button
+                            type="button"
+                            onClick={() => onTarget(move)}
+                            className="action-button action-button--red move-card__damage-btn"
+                            title="Rolar Dano"
+                        >
+                            💥 Rolar Dano
+                        </button>
+                    </div>
+                    <div className="move-card__sort-container">
+                        <button
+                            type="button"
+                            onClick={() => moveUpMove(move.id)}
+                            className="action-button action-button--sort move-card__sort-btn"
+                        >
+                            ▲
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => moveDownMove(move.id)}
+                            className="action-button action-button--sort move-card__sort-btn"
+                        >
+                            ▼
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onDelete(move.id)}
+                            className="action-button action-button--red move-card__delete-btn"
+                        >
+                            X
+                        </button>
+                    </div>
+                </div>
+
+                {editModalOpen && <MoveEditModal moveId={move.id} onClose={() => setEditModalOpen(false)} />}
+            </div>
+
+            {bankModalOpen && (
+                <div className="moves-table__modal-overlay">
+                    <div className="moves-table__modal-content" style={{ width: '340px', maxWidth: '90%' }}>
+                        <h3 className="moves-table__modal-title">⚠️ Dados Guardados Detectados</h3>
+                        <p className="moves-table__modal-text" style={{ textAlign: 'left' }}>
+                            Você atualmente tem <strong>{totalBanked}</strong> Dados de Dano extras guardados de
+                            rolagens anteriores.
+                            <br />
+                            <br />
+                            Você está abandonando seu ataque anterior, ou este é um golpe de Reação em que você quer
+                            manter os dados guardados anteriormente?
+                        </p>
+                        <div className="moves-table__modal-actions">
+                            <button
+                                type="button"
+                                className="action-button action-button--dark moves-table__modal-btn"
+                                onClick={() => setBankModalOpen(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="action-button action-button--dark moves-table__modal-btn"
+                                onClick={confirmKeepBank}
+                            >
+                                Manter Reserva
+                            </button>
+                            <button
+                                type="button"
+                                className="action-button action-button--red moves-table__modal-btn"
+                                onClick={confirmWipeBank}
+                            >
+                                Limpar Reserva
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+});

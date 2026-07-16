@@ -1,0 +1,360 @@
+.tracker-section {
+    border: 2px solid var(--primary);
+    background-color: var(--panel-alt);
+    padding: 12px 10px; /* Gives the panel extra vertical breathing room */
+}
+
+.tracker-section__horizontal-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+    padding-top: 4px;
+}
+
+.tracker-section__horizontal-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    height: 100%;
+}
+
+.tracker-section__row-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+.tracker-section__action-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tracker-section__action-group--right {
+    margin-left: auto;
+    font-size: 0.75rem;
+}
+
+.tracker-section__action-label {
+    font-weight: bold;
+}
+
+.tracker-section__buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tracker-section__toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tracker-section__toggle-btn {
+    padding: 0 8px;
+    white-space: nowrap;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.tracker-section__checkbox {
+    cursor: pointer;
+    transform: scale(1.1);
+    margin: 0; /* Prevents default browser margins from messing up vertical alignment */
+}
+
+.tracker-section__first-hit-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--row-odd);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    flex: 0 1 auto;
+    height: 28px; /* Matched to Maneuver Dropdown */
+    box-sizing: border-box;
+}
+
+.tracker-section__first-hit-label {
+    font-weight: bold;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tracker-section__first-hit-check {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--text-main);
+    font-weight: bold;
+}
+
+.tracker-section__chances-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.75rem;
+}
+
+.tracker-section__roll-btn {
+    padding: 2px 8px;
+}
+
+.tracker-section__maneuver-subrow {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex: 1 1 auto;
+}
+
+.tracker-section__maneuver-select {
+    padding: 0 6px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    flex: 1 1 100px;
+    min-width: 0;
+    background-color: var(--row-odd);
+    color: var(--text-main);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    height: 28px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.tracker-section__maneuver-btn {
+    flex: 0 0 28px;
+    height: 28px;
+    min-height: 28px;
+    max-height: 28px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-section__reset-rest-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tracker-section__reset-btn,
+.tracker-section__rest-btn {
+    flex: 1 1 80px;
+    min-width: 80px;
+    text-align: center;
+    padding: 0;
+    height: 28px; /* Hard-locked to perfectly match the Conditions box */
+    box-sizing: border-box;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-section__rest-btn {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+    color: white;
+}
+
+.tracker-section__will-row {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.tracker-section__will-btn {
+    flex: 1 1 0%;
+    font-size: 0.65rem;
+    padding: 6px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Active Conditions Container */
+.tracker-section__conditions-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--row-odd);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0 8px;
+    border-radius: 4px;
+    height: 28px; /* Hard-locked to perfectly match the Reset/Rest buttons */
+    box-sizing: border-box;
+}
+
+.tracker-section__conditions-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.tracker-section__conditions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.tracker-section__condition-pill {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+}
+
+.tracker-section__conditions-empty {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Modals */
+.tracker-modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+.tracker-modal__content {
+    background-color: var(--panel-bg);
+    padding: 15px;
+    border-radius: 8px;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--primary);
+}
+
+.tracker-modal__content--clash {
+    width: 260px;
+}
+
+.tracker-modal__content--rest {
+    border-color: #2e7d32;
+}
+
+.tracker-modal__title {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    text-align: center;
+}
+
+.tracker-modal__title--rest {
+    color: #2e7d32;
+}
+
+.tracker-modal__description {
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--text-muted);
+}
+
+.tracker-modal__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.tracker-modal__btn-cancel,
+.tracker-modal__btn-confirm {
+    flex: 1;
+    padding: 6px;
+}
+
+.tracker-modal__btn-rest {
+    background-color: #2e7d32;
+    color: white;
+}
+
+.tracker-modal__clash-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tracker-modal__clash-btn-phys {
+    background-color: #e65100;
+    border-color: #e65100;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.tracker-modal__clash-btn-spec {
+    background-color: #1565c0;
+    border-color: #1565c0;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.tracker-modal__clash-btn-cancel {
+    padding: 6px;
+    margin-top: 4px;
+}
+
+.tracker-modal__spinner-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.tracker-modal__actions--center {
+    justify-content: center;
+}
+
+/* Mobile Overrides */
+@media (max-width: 768px) {
+    .tracker-section__horizontal-wrapper {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
